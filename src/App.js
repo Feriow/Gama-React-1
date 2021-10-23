@@ -1,25 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect, useCallback, Redirect } from "react";
+import Hello from "./Hello";
+import Content from "./Content";
 
-function App() {
+import { jokeURL } from "./service/api";
+
+export default function App() {
+  const [name, setName] = useState("");
+  const [joke, setJoke] = useState({});
+  const [isLoad, setIsLoad] = useState(false);
+  const [newJoke, setNewJoke] = useState(false);
+
+  //const handleSetName = () => {
+  //  setName("Valter");
+  //};
+
+  const handleSetName = useCallback(
+    (nameFunction) => {
+      setName("Valter");
+      console.log(joke?.value);
+    },
+    [joke]
+  );
+
+  useEffect(() => {
+    setIsLoad(true);
+    jokeURL.get("random").then((response) => {
+      setJoke(response.data);
+      setIsLoad(false);
+    });
+  }, [newJoke]);
+
+  if (isLoad) {
+    return (
+      <>
+        <div>
+          <p>Carregando...</p>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Hello name={name} />
+      <button onClick={handleSetName}>Clique Aqui</button>
+      <Content />
+      <hr></hr>
+      <button onClick={() => setNewJoke(!newJoke)}>Mudar</button>
+      <img src={joke?.icon_url} alt={joke?.value} />
+      <h1 style={{ textAlign: "center" }}>{joke?.value}</h1>
+    </>
   );
 }
-
-export default App;
